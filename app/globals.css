@@ -1,0 +1,213 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-zen-kaku), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --color-safe: var(--safe);
+  --color-safe-foreground: var(--safe-foreground);
+  --color-warn: var(--warn);
+  --color-warn-foreground: var(--warn-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  color-scheme: dark;
+  --background: oklch(0.17 0.035 279);
+  --foreground: oklch(0.97 0.01 280);
+  --card: oklch(0.23 0.038 279);
+  --card-foreground: oklch(0.97 0.01 280);
+  --popover: oklch(0.2 0.036 279);
+  --popover-foreground: oklch(0.97 0.01 280);
+  --primary: oklch(0.75 0.12 185);
+  --primary-foreground: oklch(0.18 0.04 200);
+  --secondary: oklch(0.28 0.04 279);
+  --secondary-foreground: oklch(0.97 0.01 280);
+  --muted: oklch(0.27 0.035 279);
+  --muted-foreground: oklch(0.7 0.025 280);
+  --accent: oklch(0.3 0.045 279);
+  --accent-foreground: oklch(0.97 0.01 280);
+  --destructive: oklch(0.63 0.21 22);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.75 0.12 185);
+
+  --safe: oklch(0.75 0.12 185);
+  --safe-foreground: oklch(0.18 0.04 200);
+  --warn: oklch(0.77 0.13 55);
+  --warn-foreground: oklch(0.22 0.05 60);
+  --danger: oklch(0.63 0.21 22);
+  --danger-foreground: oklch(0.98 0.01 20);
+
+  --chart-1: oklch(0.75 0.12 185);
+  --chart-2: oklch(0.77 0.13 55);
+  --chart-3: oklch(0.63 0.21 22);
+  --chart-4: oklch(0.6 0.14 279);
+  --chart-5: oklch(0.7 0.025 280);
+  --radius: 0.9rem;
+  --sidebar: oklch(0.2 0.036 279);
+  --sidebar-foreground: oklch(0.97 0.01 280);
+  --sidebar-primary: oklch(0.75 0.12 185);
+  --sidebar-primary-foreground: oklch(0.18 0.04 200);
+  --sidebar-accent: oklch(0.3 0.045 279);
+  --sidebar-accent-foreground: oklch(0.97 0.01 280);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.75 0.12 185);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /*
+   * Tailwind v4 から、button に cursor: pointer が自動で付かなくなった。
+   * そのため「押せる場所」に矢印のままカーソルが乗ってしまう。
+   * 押せる要素すべてで指の形に戻す。
+   */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  label[for],
+  summary,
+  select,
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes fake-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-4px);
+  }
+  40%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-fake-shake {
+  animation: fake-shake 0.4s ease-in-out;
+}
+
+/* 疑似再生：静止画をゆっくり寄せて、映像が動いているように見せる */
+@keyframes fake-play {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.07) translate3d(0, -1.5%, 0);
+  }
+}
+
+.animate-fake-play {
+  animation: fake-play 14s linear forwards;
+  transform-origin: 50% 40%;
+}
+
+/* ディープフェイク特有の違和感を表す走査ノイズ。気づける程度に控えめ */
+@keyframes fake-glitch {
+  0%,
+  88%,
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  89% {
+    opacity: 0.4;
+    transform: translateY(120%);
+  }
+  92% {
+    opacity: 0.15;
+    transform: translateY(260%);
+  }
+  95% {
+    opacity: 0.32;
+    transform: translateY(420%);
+  }
+}
+
+.animate-fake-glitch {
+  height: 14%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgb(255 255 255 / 0.6),
+    transparent
+  );
+  animation: fake-glitch 3.4s steps(1, end) infinite;
+}
+
+/* 端末側で「視差効果を減らす」設定の人には動きを止める */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fake-play,
+  .animate-fake-glitch,
+  .animate-fake-shake {
+    animation: none;
+  }
+}

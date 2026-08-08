@@ -1,0 +1,73 @@
+# main ブランチに変更を push するたびに、自動でビルドして GitHub Pages に公開する。
+#
+# 初回だけ、GitHub のリポジトリ画面で次の設定が必要:
+#   Settings → Pages → Build and deployment → Source を「GitHub Actions」に変更
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # 「Actions」タブから手動で実行することもできる
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 公開処理が重ならないようにする（新しい方を待たせる）
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ソースを取得
+        uses: actions/checkout@v4
+
+      - name: Node.js を用意
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 公開フォルダ名（basePath）を決める
+        id: basepath
+        run: |
+          REPO="${{ github.event.repository.name }}"
+          # 「ユーザー名.github.io」というリポジトリはサイトの直下に置かれるので basePath は空
+          if [[ "$REPO" == *.github.io ]]; then
+            echo "value=" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=/$REPO" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 必要な部品をインストール
+        run: npm install
+
+      - name: ビルド（out/ に書き出される）
+        env:
+          NEXT_PUBLIC_BASE_PATH: ${{ steps.basepath.outputs.value }}
+        run: npm run build
+
+      - name: Jekyll による加工を止める
+        # これが無いと、GitHub 側が _next フォルダ（先頭がアンダースコア）を無視してしまい
+        # 画面が真っ白になる
+        run: touch out/.nojekyll
+
+      - name: 公開用に受け渡す
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages へ公開
+        id: deployment
+        uses: actions/deploy-pages@v4
