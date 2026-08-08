@@ -298,8 +298,15 @@ export const SCENARIOS: Scenario[] = [
     // public/content/deepfake.mp4 を置けば本物の動画として再生される。
     // 置かない場合は上の image がゆっくり動く疑似再生になる（体験の流れは同じ）。
     video: undefined,
-    videoDurationSec: 16,
+    videoDurationSec: 17,
     videoGlitch: true,
+    // 端末の読み上げ機能でしゃべらせる。動画ファイルが無くても「声」で現実味が出る
+    videoSpeech: [
+      { at: 0.6, text: "皆さん、こんにちは。" },
+      { at: 3.4, text: "この投資アプリなら、月三百万円は誰でも稼げます。" },
+      { at: 8.6, text: "確実に儲かる自動売買システムです。" },
+      { at: 12.4, text: "定員に達し次第締め切ります。今すぐ登録してください。" },
+    ],
     link: {
       displayUrl: "▶ LINEグループに参加する",
       actualDomain: "line-vip-invest.xyz",

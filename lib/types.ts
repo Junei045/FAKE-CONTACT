@@ -58,6 +58,8 @@ export interface Scenario {
   videoDurationSec?: number
   /** 映像に不自然なノイズを走らせる（ディープフェイクの兆候の表現） */
   videoGlitch?: boolean
+  /** 再生中に読み上げる台詞。at は再生開始からの秒数 */
+  videoSpeech?: { at: number; text: string }[]
   link?: LinkPreview
   timestamp: string
   isFraud: boolean
