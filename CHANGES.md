@@ -66,3 +66,21 @@ npm run build   # 本番ビルド
 ```
 
 型チェック（`npx tsc --noEmit`）と本番ビルドは通ることを確認済みです。
+
+---
+
+## 追記：GitHub Pages で画像が出なかった件の修正
+
+**症状**：アバター、キャンペーン画像、セール画像、動画のサムネイルがすべて表示されない。
+
+**原因**：Next.js の画像部品（next/image）は、`unoptimized: true` のとき **basePath を自動で付けません**。そのため `/avatars/...` を探しに行き、正しい `/FAKE-CONTACT/avatars/...` に届かず404になっていました。動画（`<video>`）と同じ落とし穴です。
+
+**対処**：`components/game/app-image.tsx` を追加し、画像はすべてこれを通すようにしました。公開先に合わせて住所を直します。
+
+今後、画像を追加するときは **`next/image` を直接使わず、`AppImage` を使ってください。**同じ問題を繰り返さないための決まりです。
+
+```tsx
+import { AppImage } from "./app-image"
+
+<AppImage src="/content/新しい画像.png" alt="説明" width={480} height={300} />
+```
