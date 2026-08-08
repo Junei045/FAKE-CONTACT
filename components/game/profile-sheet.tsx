@@ -1,9 +1,9 @@
 "use client"
 
-import Image from "next/image"
 import { CalendarClock, Users, ImageIcon, ShieldQuestion } from "lucide-react"
 import type { Profile } from "@/lib/types"
 import { formatCount } from "@/lib/game"
+import { AppImage } from "./app-image"
 import { VerifiedBadge } from "./verified-badge"
 import { BottomSheet } from "./bottom-sheet"
 
@@ -29,7 +29,7 @@ export function ProfileSheet({
   return (
     <BottomSheet open={open} onClose={onClose} title="プロフィールを確認">
       <div className="flex flex-col items-center text-center">
-        <Image
+        <AppImage
           src={profile.avatar || "/placeholder.svg"}
           alt={`${profile.displayName}のアイコン`}
           width={80}

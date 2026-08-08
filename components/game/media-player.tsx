@@ -1,10 +1,10 @@
 "use client"
 
-import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react"
 import { playSfx, unlockAudio } from "@/lib/sfx"
 import { asset } from "@/lib/base-path"
+import { AppImage } from "./app-image"
 
 function formatTime(sec: number): string {
   const s = Math.max(0, Math.floor(sec))
@@ -132,7 +132,7 @@ export function MediaPlayer({
           }}
         />
       ) : (
-        <Image
+        <AppImage
           src={poster || "/placeholder.svg"}
           alt={alt}
           width={480}

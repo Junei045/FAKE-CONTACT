@@ -1,10 +1,10 @@
 "use client"
 
-import Image from "next/image"
 import { ChevronLeft, MoreHorizontal, Link2, Hand, ScanSearch } from "lucide-react"
 import type { Scenario } from "@/lib/types"
 import { PLATFORM_META } from "@/lib/types"
 import { playSfx } from "@/lib/sfx"
+import { AppImage } from "./app-image"
 import { VerifiedBadge } from "./verified-badge"
 import { MediaPlayer } from "./media-player"
 
@@ -53,7 +53,7 @@ export function SnsScreen({
               onClick={openProfile}
               className="flex min-w-0 items-center gap-2"
             >
-              <Image
+              <AppImage
                 src={profile.avatar || "/placeholder.svg"}
                 alt=""
                 width={28}
@@ -146,7 +146,7 @@ function Attachment({ scenario }: { scenario: Scenario }) {
   }
 
   return (
-    <Image
+    <AppImage
       src={scenario.image || "/placeholder.svg"}
       alt={`${scenario.profile.displayName}の投稿画像`}
       width={480}
@@ -171,7 +171,7 @@ function DmThread({
       <p className="text-center text-[11px] text-muted-foreground">ダイレクトメッセージ</p>
       <div className="flex gap-2.5">
         <button type="button" onClick={onOpenProfile} className="shrink-0 self-end">
-          <Image
+          <AppImage
             src={profile.avatar || "/placeholder.svg"}
             alt={`${profile.displayName}のアイコン`}
             width={36}
@@ -223,7 +223,7 @@ function FeedPost({
     <article className="overflow-hidden rounded-2xl border border-border bg-secondary/40">
       <header className="flex items-center gap-2.5 px-3.5 py-3">
         <button type="button" onClick={onOpenProfile} className="shrink-0">
-          <Image
+          <AppImage
             src={profile.avatar || "/placeholder.svg"}
             alt={`${profile.displayName}のアイコン`}
             width={40}
