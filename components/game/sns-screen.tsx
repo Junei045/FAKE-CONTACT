@@ -141,6 +141,7 @@ function Attachment({ scenario }: { scenario: Scenario }) {
         label={scenario.mediaLabel || "動画"}
         durationSec={scenario.videoDurationSec ?? 14}
         glitch={scenario.videoGlitch}
+        speech={scenario.videoSpeech}
       />
     )
   }

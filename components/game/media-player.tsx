@@ -1,9 +1,10 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react"
+import { Play, RotateCcw, Volume2, VolumeX } from "lucide-react"
 import { playSfx, unlockAudio } from "@/lib/sfx"
 import { asset } from "@/lib/base-path"
+import { speak, stopSpeaking, warmUpVoices } from "@/lib/speech"
 import { AppImage } from "./app-image"
 
 function formatTime(sec: number): string {
@@ -11,14 +12,20 @@ function formatTime(sec: number): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`
 }
 
+export interface SpeechLine {
+  /** 再生開始からの秒数 */
+  at: number
+  text: string
+}
+
 /**
  * SNSの動画投稿を再現するプレイヤー。
  *
- * ・src に動画ファイル（例 /content/deepfake.mp4）を渡すと本物の <video> として再生する。
- * ・src が無い場合は poster 画像をゆっくり寄りながら「再生している風」に見せる疑似再生に切り替わる。
- *   動画素材が用意できていなくても、体験の流れ（再生ボタンを押す→時間が進む→終わる）は同じになる。
- * ・glitch を true にすると、映像に走査線のようなノイズが時々走る。
- *   ディープフェイクの「よく見ると不自然」を、観察すれば気づける程度に表現するためのもの。
+ * ・src に動画ファイルを渡すと本物の <video> として再生する。
+ * ・src が無い場合は poster 画像を動かして「再生している風」に見せる。
+ * ・speech を渡すと、端末の読み上げ機能でその台詞をしゃべり、字幕も出る。
+ *   動画ファイルが無くても声が出るので、広告としての生々しさが出る。
+ * ・glitch を true にすると映像に走査ノイズが走る（ディープフェイクの兆候）。
  */
 export function MediaPlayer({
   src,
@@ -27,6 +34,7 @@ export function MediaPlayer({
   label = "動画",
   durationSec = 14,
   glitch = false,
+  speech,
 }: {
   src?: string
   poster: string
@@ -34,16 +42,39 @@ export function MediaPlayer({
   label?: string
   durationSec?: number
   glitch?: boolean
+  speech?: SpeechLine[]
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const progressRef = useRef(0)
+  // すでにしゃべった台詞の数。巻き戻すと 0 に戻す
+  const spokenRef = useRef(0)
+
   const [playing, setPlaying] = useState(false)
   const [ended, setEnded] = useState(false)
   const [progress, setProgress] = useState(0)
   const [duration, setDuration] = useState(durationSec)
-  const [soundOff, setSoundOff] = useState(true)
+  const [soundOff, setSoundOff] = useState(false)
+  const [caption, setCaption] = useState<string | null>(null)
 
-  // 疑似再生モードの時間経過。requestAnimationFrame で滑らかに進める
+  useEffect(() => {
+    warmUpVoices()
+  }, [])
+
+  // 経過秒数に達した台詞をしゃべる
+  const advanceSpeech = useCallback(
+    (elapsed: number) => {
+      if (!speech || soundOff) return
+      while (spokenRef.current < speech.length && speech[spokenRef.current].at <= elapsed) {
+        const line = speech[spokenRef.current]
+        speak(line.text)
+        setCaption(line.text)
+        spokenRef.current += 1
+      }
+    },
+    [speech, soundOff],
+  )
+
+  // 疑似再生モードの時間経過
   useEffect(() => {
     if (src || !playing) return
     let raf = 0
@@ -54,6 +85,7 @@ export function MediaPlayer({
       last = now
       progressRef.current = Math.min(1, progressRef.current + dt / duration)
       setProgress(progressRef.current)
+      advanceSpeech(progressRef.current * duration)
       if (progressRef.current >= 1) {
         setPlaying(false)
         setEnded(true)
@@ -63,7 +95,12 @@ export function MediaPlayer({
     }
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [playing, src, duration])
+  }, [playing, src, duration, advanceSpeech])
+
+  // 画面を離れるときに読み上げを止める（次の問題に声が残らないように）
+  useEffect(() => {
+    return () => stopSpeaking()
+  }, [])
 
   const toggle = useCallback(() => {
     unlockAudio()
@@ -71,7 +108,9 @@ export function MediaPlayer({
 
     if (ended) {
       progressRef.current = 0
+      spokenRef.current = 0
       setProgress(0)
+      setCaption(null)
       setEnded(false)
       if (src && videoRef.current) {
         videoRef.current.currentTime = 0
@@ -89,11 +128,16 @@ export function MediaPlayer({
         setPlaying(true)
       } else {
         v.pause()
+        stopSpeaking()
         setPlaying(false)
       }
       return
     }
-    setPlaying((p) => !p)
+
+    setPlaying((p) => {
+      if (p) stopSpeaking()
+      return !p
+    })
   }, [ended, src])
 
   const toggleSound = useCallback(() => {
@@ -101,6 +145,7 @@ export function MediaPlayer({
     setSoundOff((prev) => {
       const next = !prev
       if (videoRef.current) videoRef.current.muted = next
+      if (next) stopSpeaking()
       return next
     })
   }, [])
@@ -125,6 +170,7 @@ export function MediaPlayer({
           onTimeUpdate={(e) => {
             const v = e.currentTarget
             if (v.duration > 0) setProgress(v.currentTime / v.duration)
+            advanceSpeech(v.currentTime)
           }}
           onEnded={() => {
             setPlaying(false)
@@ -158,11 +204,6 @@ export function MediaPlayer({
             )}
           </span>
         )}
-        {playing && (
-          <span className="sr-only">
-            <Pause className="size-6" aria-hidden />
-          </span>
-        )}
       </button>
 
       {/* ディープフェイク特有の違和感を表す走査ノイズ（再生中のみ・控えめ） */}
@@ -178,6 +219,13 @@ export function MediaPlayer({
         {label}
       </span>
 
+      {/* 字幕 */}
+      {caption && playing && (
+        <p className="pointer-events-none absolute inset-x-0 bottom-9 z-20 px-3 text-center text-[13px] font-bold leading-snug text-white [text-shadow:0_1px_3px_rgb(0_0_0/0.9)]">
+          {caption}
+        </p>
+      )}
+
       {/* 再生バー */}
       <div className="absolute inset-x-0 bottom-0 z-20 flex items-center gap-2 bg-gradient-to-t from-black/85 to-transparent px-3 pb-2 pt-7">
         <span className="font-mono text-[10px] tabular-nums text-white/85">
@@ -189,20 +237,18 @@ export function MediaPlayer({
             style={{ width: `${Math.round(progress * 100)}%` }}
           />
         </span>
-        {src && (
-          <button
-            type="button"
-            onClick={toggleSound}
-            aria-label={soundOff ? "動画の音を出す" : "動画を消音する"}
-            className="text-white/85 transition-colors hover:text-white"
-          >
-            {soundOff ? (
-              <VolumeX className="size-4" aria-hidden />
-            ) : (
-              <Volume2 className="size-4" aria-hidden />
-            )}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={toggleSound}
+          aria-label={soundOff ? "動画の音を出す" : "動画を消音する"}
+          className="text-white/85 transition-colors hover:text-white"
+        >
+          {soundOff ? (
+            <VolumeX className="size-4" aria-hidden />
+          ) : (
+            <Volume2 className="size-4" aria-hidden />
+          )}
+        </button>
       </div>
     </div>
   )
