@@ -157,11 +157,14 @@
 
 /* 疑似再生：静止画をゆっくり寄せて、映像が動いているように見せる */
 @keyframes fake-play {
-  from {
+  0% {
     transform: scale(1) translate3d(0, 0, 0);
   }
-  to {
-    transform: scale(1.07) translate3d(0, -1.5%, 0);
+  50% {
+    transform: scale(1.08) translate3d(-1.2%, -1.6%, 0);
+  }
+  100% {
+    transform: scale(1.15) translate3d(0.8%, -3%, 0);
   }
 }
 
