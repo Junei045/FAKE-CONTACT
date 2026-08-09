@@ -60,6 +60,8 @@ export interface Scenario {
   videoGlitch?: boolean
   /** 再生中に読み上げる台詞。at は再生開始からの秒数 */
   videoSpeech?: { at: number; text: string }[]
+  /** 読み上げる声の性別。映像に写っている人物に合わせる（既定は女性） */
+  videoVoice?: "male" | "female"
   link?: LinkPreview
   timestamp: string
   isFraud: boolean

@@ -300,6 +300,8 @@ export const SCENARIOS: Scenario[] = [
     video: undefined,
     videoDurationSec: 17,
     videoGlitch: true,
+    // 映像は男性なので男性の声で読み上げる
+    videoVoice: "male",
     // 端末の読み上げ機能でしゃべらせる。動画ファイルが無くても「声」で現実味が出る
     videoSpeech: [
       { at: 0.6, text: "皆さん、こんにちは。" },

@@ -142,6 +142,7 @@ function Attachment({ scenario }: { scenario: Scenario }) {
         durationSec={scenario.videoDurationSec ?? 14}
         glitch={scenario.videoGlitch}
         speech={scenario.videoSpeech}
+        voiceGender={scenario.videoVoice}
       />
     )
   }

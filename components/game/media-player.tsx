@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { Play, RotateCcw, Volume2, VolumeX } from "lucide-react"
 import { playSfx, unlockAudio } from "@/lib/sfx"
 import { asset } from "@/lib/base-path"
-import { speak, stopSpeaking, warmUpVoices } from "@/lib/speech"
+import { speak, stopSpeaking, warmUpVoices, type VoiceGender } from "@/lib/speech"
 import { AppImage } from "./app-image"
 
 function formatTime(sec: number): string {
@@ -35,6 +35,7 @@ export function MediaPlayer({
   durationSec = 14,
   glitch = false,
   speech,
+  voiceGender = "female",
 }: {
   src?: string
   poster: string
@@ -43,6 +44,7 @@ export function MediaPlayer({
   durationSec?: number
   glitch?: boolean
   speech?: SpeechLine[]
+  voiceGender?: VoiceGender
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const progressRef = useRef(0)
@@ -66,12 +68,12 @@ export function MediaPlayer({
       if (!speech || soundOff) return
       while (spokenRef.current < speech.length && speech[spokenRef.current].at <= elapsed) {
         const line = speech[spokenRef.current]
-        speak(line.text)
+        speak(line.text, voiceGender)
         setCaption(line.text)
         spokenRef.current += 1
       }
     },
-    [speech, soundOff],
+    [speech, soundOff, voiceGender],
   )
 
   // 疑似再生モードの時間経過
